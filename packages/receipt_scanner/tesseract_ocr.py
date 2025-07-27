@@ -230,20 +230,24 @@ class TesseractOCRProcessor:
         
         return '\n'.join(lines)
 
-    def extract_items_from_regions(self, regions: List[TextRegion]) -> List[Dict[str, Any]]:
+    def extract_items_from_regions(self, tesseract_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """
-        Extract items from text regions
+        Extract items from Tesseract OCR data
         
         Args:
-            regions: List of TextRegion objects from OCR
+            tesseract_data: Dictionary from pytesseract.image_to_data()
             
         Returns:
             List of dictionaries with item information
         """
         items = []
         
-        for region in regions:
-            text = region.text.strip()
+        # Process each text region from Tesseract output
+        n_boxes = len(tesseract_data['text'])
+        
+        for i in range(n_boxes):
+            text = tesseract_data['text'][i].strip()
+            confidence = int(tesseract_data['conf'][i]) / 100.0
             
             # Skip empty or very short text
             if len(text) < 3:
@@ -289,12 +293,19 @@ class TesseractOCRProcessor:
                 
                 # Only add if we have a reasonable item name
                 if len(name_part) >= 2:
+                    bbox = (
+                        tesseract_data['left'][i],
+                        tesseract_data['top'][i],
+                        tesseract_data['width'][i],
+                        tesseract_data['height'][i]
+                    )
+                    
                     items.append({
                         'name': name_part,
                         'price': price,
                         'quantity': quantity,
-                        'confidence': region.confidence,
-                        'bbox': region.bbox
+                        'confidence': confidence,
+                        'bbox': bbox
                     })
         
         return items
