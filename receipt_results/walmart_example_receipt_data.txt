@@ -1,7 +1,15 @@
-Merchant: Give us feedback @ survey.walmart.com oo me
+Merchant: ? pe
 Total: $0.00
 Tax: $0.00
 Tip: None
-Items: 0
-Confidence: 0.00
+Items: 8
+Confidence: 0.80
 
+1. Thank you! ID # x1 @ $7.00
+2. a — GV OATMEAL = 007874243408 F x1 @ $1.76
+3. OT 2002 TUM 081236803115 x1 @ $6.74
+4. M ATHLETICS 019104567781 x1 @ $24.97
+5. DEXAS 15X20 008429710921 x1 @ $12.97
+6. DEBIT TEND x1 @ $49.90
+7. LeKs x1 @ $10.00
+8. Eile x1 @ $3.00

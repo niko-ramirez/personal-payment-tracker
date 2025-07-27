@@ -1,0 +1,9 @@
+Merchant: East Repair Inc
+Total: $154.06
+Tax: $9.06
+Tip: None
+Items: 3
+
+1. Front and real brake cables x1 @ $100.00
+2. New set of pedal arms  x2 @ $15.00
+3. Labor 3hrs x3 @ $5.00

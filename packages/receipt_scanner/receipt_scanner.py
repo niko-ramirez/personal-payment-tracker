@@ -97,14 +97,15 @@ class ReceiptScanner:
         
         # Extract text using OCR
         raw_text = self.ocr_processor.perform_text_ocr(self.image_path)
-        self.receipt.raw_text = raw_text
         
-        # Extract items from OCR regions
+        # Extract OCR regions data
         regions_data = self.ocr_processor.perform_region_ocr(self.image_path)
-        items = self.ocr_processor.extract_items_from_regions(regions_data)
         
-        # Parse receipt data
-        self._parse_receipt_data(raw_text, items)
+        # Use simplified parser
+        from receipt_parser import ReceiptParser
+        parser = ReceiptParser()
+        self.receipt = parser.parse_receipt(raw_text)
+        self.receipt.image_path = self.image_path
         
         logger.info(f"Scan complete. Found {len(self.receipt.items)} items.")
         return self.receipt

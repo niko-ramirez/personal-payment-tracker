@@ -77,6 +77,7 @@ def main():
     for img in images:
         test_full_receipt_parsing(img)
     
+    
     print(colored("\n=== Text-to-Items Test Complete ===", 'green'))
 
 

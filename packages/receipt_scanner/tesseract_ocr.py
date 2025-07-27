@@ -126,7 +126,7 @@ class TesseractOCRProcessor:
         """
         preprocessed_img = self.preprocess_image(image_path, target_dpi=300, add_border=True)
 
-        output_dict = pytesseract.image_to_data(preprocessed_img, output_type=pytesseract.Output.DICT, lang='eng', config='--psm 6')
+        output_dict = pytesseract.image_to_data(preprocessed_img, output_type=pytesseract.Output.DICT, lang='eng', config='--psm 4')
         if boundary_box_display:
             self.boundary_box_display(image_path, preprocessed_img, output_dict)
         return output_dict
