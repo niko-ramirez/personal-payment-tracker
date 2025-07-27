@@ -7,146 +7,76 @@ import cv2
 import numpy as np
 import os
 from tesseract_ocr import TesseractOCRProcessor, create_tesseract_processor
+from typing import List
+from termcolor import colored
 
 
-def test_tesseract_ocr_with_ideal_test_jpeg():
-    """Test specifically with ideal_test.jpeg image"""
-    print("\nTesting Tesseract OCR with ideal_test.jpeg Image")
-    print("=" * 50)
-    
-    # Use ideal_test.jpeg image
-    test_image_path = "packages/receipt_scanner/test_images/ideal_test.jpeg"
+
+
+def test_tesseract_ocr(test_image_path: str):
+    """Test specifically with test image"""
+    print(colored(f"\nTesting Tesseract OCR with {test_image_path} Image", 'green'))
+    print(colored("=" * 50, 'green'))
     
     if not os.path.exists(test_image_path):
-        print(f"Test image not found: {test_image_path}")
+        print(colored(f"Test image not found: {test_image_path}", 'red'))
         return None, None, 0.0
     
-    print(f"Using test image: {test_image_path}")
+    print(colored(f"Using test image: {test_image_path}", 'green'))
     
     try:
         # Load the test image
         test_image = cv2.imread(test_image_path)
         if test_image is None:
-            print(f"Could not load image: {test_image_path}")
+            print(colored(f"Could not load image: {test_image_path}", 'red'))
             return None, None, 0.0
         
         # Initialize Tesseract OCR processor
-        print("\nInitializing Tesseract OCR processor...")
+        print(colored("\nInitializing Tesseract OCR processor...", 'green'))
         ocr_processor = create_tesseract_processor()
         
         # Test preprocessing
-        print("Testing preprocessing...")
+        print(colored("Testing preprocessing...", 'green'))
         preprocessed = ocr_processor.preprocess_image(test_image_path, target_dpi=300, add_border=True)
         
-        if preprocessed is not None:
-            print("✓ Preprocessing successful")
-            
-            # Test simple OCR
-            print("\nTesting simple OCR...")
-            extracted_text = ocr_processor.perform_ocr(test_image_path)
-            print(f"Extracted text:\n{extracted_text}")
-            
-            # Test boundary box display
-            print("\nTesting boundary box display...")
-            ocr_processor.perform_ocr(test_image_path, boundary_box_display=True)
-            
-            # Test process_image method
-            print("\nTesting process_image method...")
-            regions = ocr_processor.process_image(test_image)
-            
-            # Display results
-            print(f"\nDetected {len(regions)} text regions:")
-            for i, region in enumerate(regions[:5]):  # Show first 5
-                print(f"  {i+1}. '{region.text}' (confidence: {region.confidence:.2f}, type: {region.region_type})")
-            
-            # Extract formatted text
-            extracted_text = ocr_processor.extract_text_from_regions(regions)
-            print(f"\nExtracted text:\n{extracted_text}")
-            
-            # Get confidence score
-            confidence = ocr_processor.get_confidence_score(regions)
-            print(f"\nOverall confidence: {confidence:.2f}")
-            
-            return regions, extracted_text, confidence
-        else:
-            print("✗ Preprocessing failed")
-            return None, None, 0.0
+        # Test simple OCR
+        print(colored("\nTesting simple OCR...", 'green'))
+        extracted_text = ocr_processor.perform_text_ocr(test_image_path)
+
+        output_dir = "tesseract_ocr_results"
+        os.makedirs(output_dir, exist_ok=True)
+        base_name = os.path.splitext(os.path.basename(test_image_path))[0]
+        output_image_name = f"{base_name}_extracted_text.txt"
+        with open(os.path.join(output_dir, output_image_name), "w") as f:
+            f.write(extracted_text)
+        
+        # Test boundary box display
+        print(colored("\nTesting boundary box display...", 'green'))
+        regions = ocr_processor.perform_region_ocr(test_image_path, boundary_box_display=True)
+        
+        # Display results
+        print(colored(f"\nDetected {len(regions)} text regions:", 'green'))
+        for i, region in enumerate(regions[:5]):  # Show first 5
+            print(colored(f"  {i+1}. '{region.text}' (confidence: {region.confidence:.2f}, type: {region.region_type})", 'green'))
+        
+        # Extract formatted text
+        # extracted_text = ocr_processor.extract_text_from_regions(regions)
+        # print(f"\nExtracted text:\n{extracted_text}")
+        
+        # Get confidence score
+        confidence = ocr_processor.get_confidence_score(regions)
+        print(colored(f"\nOverall confidence: {confidence:.2f}", 'green'))
+        
+        return regions, extracted_text, confidence
+      
         
     except Exception as e:
-        print(f"Error testing with ideal_test.jpeg: {e}")
+        print(colored(f"Error testing with {test_image_path}: {e}", 'red'))
         return None, None, 0.0
 
-
-def test_tesseract_ocr_with_real_image():
-    """Test specifically with real_test.jpg image"""
-    print("\nTesting Tesseract OCR with real_test.jpg Image")
-    print("=" * 50)
-    
-    # Use real_test.jpeg image
-    test_image_path = "packages/receipt_scanner/test_images/real_test.jpg"
-    
-    if not os.path.exists(test_image_path):
-        print(f"Test image not found: {test_image_path}")
-        return None, None, 0.0
-    
-    print(f"Using test image: {test_image_path}")
-    
-    try:
-        # Load the test image
-        test_image = cv2.imread(test_image_path)
-        if test_image is None:
-            print(f"Could not load image: {test_image_path}")
-            return None, None, 0.0
-        
-        # Initialize Tesseract OCR processor
-        print("\nInitializing Tesseract OCR processor...")
-        ocr_processor = create_tesseract_processor()
-        
-        # Test preprocessing
-        print("Testing preprocessing...")
-        preprocessed = ocr_processor.preprocess_image(test_image_path, target_dpi=300, add_border=True)
-        
-        if preprocessed is not None:
-            print("✓ Preprocessing successful")
-            
-            # Test simple OCR
-            print("\nTesting simple OCR...")
-            extracted_text = ocr_processor.perform_ocr(test_image_path)
-            print(f"Extracted text:\n{extracted_text}")
-            
-            # Test boundary box display
-            print("\nTesting boundary box display...")
-            ocr_processor.perform_ocr(test_image_path, boundary_box_display=True)
-            
-            # Test process_image method
-            print("\nTesting process_image method...")
-            regions = ocr_processor.process_image(test_image)
-            
-            # Display results
-            print(f"\nDetected {len(regions)} text regions:")
-            for i, region in enumerate(regions[:5]):  # Show first 5
-                print(f"  {i+1}. '{region.text}' (confidence: {region.confidence:.2f}, type: {region.region_type})")
-            
-            # Extract formatted text
-            extracted_text = ocr_processor.extract_text_from_regions(regions)
-            print(f"\nExtracted text:\n{extracted_text}")
-            
-            # Get confidence score
-            confidence = ocr_processor.get_confidence_score(regions)
-            print(f"\nOverall confidence: {confidence:.2f}")
-            
-            return regions, extracted_text, confidence
-        else:
-            print("✗ Preprocessing failed")
-            return None, None, 0.0
-        
-    except Exception as e:
-        print(f"Error testing with ideal_test.jpeg: {e}")
-        return None, None, 0.0
-
-def test_boundaries_to_items(regions: List[TextRegion], text: str, confidence: float):
-    ocr_processor = create_tesseract_processor()
-    ocr_processor.create_boundaries(regions, text, confidence)
+# def test_boundaries_to_items(regions: List[TextRegion], text: str, confidence: float):
+#     ocr_processor = create_tesseract_processor()
+#     ocr_processor.perform_ocr(test_image_path, boundary_box_display=True)
 
     
 
@@ -157,31 +87,31 @@ def list_test_images():
     """List available test images"""
     test_images_dir = "packages/receipt_scanner/test_images"
     if os.path.exists(test_images_dir):
-        print(f"\nAvailable test images in {test_images_dir}:")
+        print(colored(f"\nAvailable test images in {test_images_dir}:", 'green'))
         for file in os.listdir(test_images_dir):
             if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
-                print(f"  - {file}")
+                print(colored(f"  - {file}", 'green'))
     else:
-        print(f"\nTest images directory not found: {test_images_dir}")
+        print(colored(f"\nTest images directory not found: {test_images_dir}", 'red'))
 
 
 def main():
     """Main test function"""
-    print("Tesseract OCR Receipt Scanner Test")
-    print("=" * 50)
+    print(colored("Tesseract OCR Receipt Scanner Test", 'green'))
+    print(colored("=" * 50, 'green'))
     
     # List available test images
     list_test_images()
     
     # Test 1: Tesseract OCR with existing image
-    regions, text, confidence = test_tesseract_ocr_with_real_image()
+    regions, text, confidence = test_tesseract_ocr("packages/receipt_scanner/test_images/real_test.jpg")
     
     # Test 2: Tesseract OCR with ideal_test.jpeg specifically
-    test_regions, test_text, test_confidence = test_tesseract_ocr_with_ideal_test_jpeg()
+    test_regions, test_text, test_confidence = test_tesseract_ocr("packages/receipt_scanner/test_images/ideal_test.jpeg")
     
     
-    print("\n=== Tesseract OCR Test Complete ===")
-    print("Check the generated tesseract_ocr_results/ directory for visualization files.")
+    print(colored("\n=== Tesseract OCR Test Complete ===", 'green'))
+    print(colored("Check the generated tesseract_ocr_results/ directory for visualization files.", 'green'))
 
 
 if __name__ == "__main__":

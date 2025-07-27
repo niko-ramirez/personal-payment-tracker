@@ -108,12 +108,10 @@ class TesseractOCRProcessor:
         if add_border:
             border_size = 10 # pixels
             final_image = cv2.copyMakeBorder(final_image, border_size, border_size, border_size, border_size, cv2.BORDER_CONSTANT, value=255)
-            print(f"Added a {border_size}-pixel white border.")
 
         return final_image
 
-
-    def perform_ocr(self, image_path: str, boundary_box_display=False):
+    def perform_region_ocr(self, image_path: str, boundary_box_display=False):
         """
         Performs OCR using a hybrid approach: Tesseract for bounding box detection
         and EasyOCR for text recognition within those boxes. [5]
@@ -128,21 +126,30 @@ class TesseractOCRProcessor:
         """
         preprocessed_img = self.preprocess_image(image_path, target_dpi=300, add_border=True)
 
-        # Use Tesseract to get bounding box data for words.
-        # Output.DICT provides detailed information including bounding box coordinates. [6, 7]
+        output_dict = pytesseract.image_to_data(preprocessed_img, output_type=pytesseract.Output.DICT, lang='eng', config='--psm 6')
         if boundary_box_display:
-            d = pytesseract.image_to_data(preprocessed_img, output_type=pytesseract.Output.DICT, lang='eng', config='--psm 6')
-            self.boundary_box_display(image_path, preprocessed_img, d)
-            return
+            self.boundary_box_display(image_path, preprocessed_img, output_dict)
+        return output_dict
+
+    def perform_text_ocr(self, image_path: str):
+        """
+        Performs OCR using Tesseract for text recognition.
         
-        d = pytesseract.image_to_string(preprocessed_img, lang='eng', config='--psm 6')
-        print(d)
-        return d
+        Args:
+            image_path (str): Path to the original (unpreprocessed) image.
+                                       Used to load the original image for cropping.
+
+        Returns:
+            str: The extracted text from the image.
+        """
+        preprocessed_img = self.preprocess_image(image_path, target_dpi=300, add_border=True)
+
+        return pytesseract.image_to_string(preprocessed_img, lang='eng', config='--psm 6')
 
     def boundary_box_display(self, image_path, preprocessed_img, d):
         # Parse the filename from the path and create a better output name
         base_name = os.path.splitext(os.path.basename(image_path))[0]  # Remove extension
-        output_image_name = f"{base_name}_tesseract_box.png"
+        output_image_name = f"{base_name}_boundaries.png"
         
         n_boxes = len(d['text'])
         for i in range(n_boxes):
@@ -223,13 +230,13 @@ class TesseractOCRProcessor:
         
         return '\n'.join(lines)
 
-    def extract_items_from_regions(self, regions: List[TextRegion]) -> List[TextRegion]:
+    def extract_items_from_regions(self, regions: List[TextRegion]):
         """
         Extract items from regions
         """
         items = []
-        for region in regions:
-            if region.region_type == "item":
+
+        return items
 
     
     
