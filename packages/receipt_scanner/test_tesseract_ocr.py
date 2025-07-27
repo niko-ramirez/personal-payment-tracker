@@ -74,34 +74,11 @@ def test_tesseract_ocr(test_image_path: str):
         print(colored(f"Error testing with {test_image_path}: {e}", 'red'))
         return None, None, 0.0
 
-# def test_boundaries_to_items(regions: List[TextRegion], text: str, confidence: float):
-#     ocr_processor = create_tesseract_processor()
-#     ocr_processor.perform_ocr(test_image_path, boundary_box_display=True)
-
-    
-
-
-
-
-def list_test_images():
-    """List available test images"""
-    test_images_dir = "packages/receipt_scanner/test_images"
-    if os.path.exists(test_images_dir):
-        print(colored(f"\nAvailable test images in {test_images_dir}:", 'green'))
-        for file in os.listdir(test_images_dir):
-            if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
-                print(colored(f"  - {file}", 'green'))
-    else:
-        print(colored(f"\nTest images directory not found: {test_images_dir}", 'red'))
-
 
 def main():
     """Main test function"""
     print(colored("Tesseract OCR Receipt Scanner Test", 'green'))
     print(colored("=" * 50, 'green'))
-    
-    # List available test images
-    list_test_images()
     
     # Test 1: Tesseract OCR with existing image
     regions, text, confidence = test_tesseract_ocr("packages/receipt_scanner/test_images/real_test.jpg")

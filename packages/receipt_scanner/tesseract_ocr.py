@@ -33,7 +33,7 @@ class TesseractOCRProcessor:
     Pure Tesseract OCR processor for receipt scanning
     """
     
-    def __init__(self, image_path: str, tesseract_path: Optional[str] = None):
+    def __init__(self, tesseract_path: Optional[str] = None):
         """
         Initialize the Tesseract OCR processor
         
@@ -230,12 +230,73 @@ class TesseractOCRProcessor:
         
         return '\n'.join(lines)
 
-    def extract_items_from_regions(self, regions: List[TextRegion]):
+    def extract_items_from_regions(self, regions: List[TextRegion]) -> List[Dict[str, Any]]:
         """
-        Extract items from regions
+        Extract items from text regions
+        
+        Args:
+            regions: List of TextRegion objects from OCR
+            
+        Returns:
+            List of dictionaries with item information
         """
         items = []
-
+        
+        for region in regions:
+            text = region.text.strip()
+            
+            # Skip empty or very short text
+            if len(text) < 3:
+                continue
+            
+            # Look for price patterns in the text
+            import re
+            price_pattern = r'\$(\d+\.\d{2})'
+            price_match = re.search(price_pattern, text)
+            
+            if price_match:
+                price = float(price_match.group(1))
+                
+                # Extract item name (everything before the price)
+                name_part = text.split('$')[0].strip()
+                
+                # Skip if it's a total/tax/tip line
+                line_lower = name_part.lower()
+                total_keywords = ['total', 'tax', 'tip', 'subtotal', 'amount', 'sum']
+                if any(keyword in line_lower for keyword in total_keywords):
+                    continue
+                
+                # Extract quantity
+                quantity = 1
+                quantity_patterns = [
+                    r'^(\d+)\s*[xX]\s*',  # "2x", "2 x"
+                    r'^(\d+)\s*-\s*',      # "2-"
+                    r'^(\d+)\s*@\s*',      # "2@"
+                ]
+                
+                for pattern in quantity_patterns:
+                    match = re.match(pattern, name_part)
+                    if match:
+                        try:
+                            quantity = int(match.group(1))
+                            name_part = name_part[match.end():].strip()
+                            break
+                        except ValueError:
+                            continue
+                
+                # Clean up item name
+                name_part = ' '.join(name_part.split())  # Remove extra whitespace
+                
+                # Only add if we have a reasonable item name
+                if len(name_part) >= 2:
+                    items.append({
+                        'name': name_part,
+                        'price': price,
+                        'quantity': quantity,
+                        'confidence': region.confidence,
+                        'bbox': region.bbox
+                    })
+        
         return items
 
     
