@@ -1,0 +1,13 @@
+Merchant: » ” a
+Total: $0.00
+Tax: $8.67
+Tip: None
+Items: 6
+Confidence: 0.80
+
+1. THT dos jud x1 @ $17.00
+2. 1 Smoked Sal Avo $Uver x1 @ $24.93
+3. ? Side of Yogurt x1 @ $9.00
+4. 1 GL ToastedColada x1 @ $18.95
+5. CNF x1 @ $3.89
+6. Oo x1 @ $1.00

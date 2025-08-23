@@ -23,7 +23,7 @@ def test_full_receipt_parsing(image_path: str):
         scanner = ReceiptScanner(ocr_processor, image_path)
 
         print(colored(f"Scanning {image_path}...", 'green'))
-        
+        scanner.preprocess_image()
         # Scan the receipt
         receipt = scanner.scan()
         
@@ -61,7 +61,7 @@ def test_full_receipt_parsing(image_path: str):
 def list_test_images():
     """List available test images"""
     images = []
-    test_images_dir = "packages/receipt_scanner/test_images"
+    test_images_dir = "test_images"
     if os.path.exists(test_images_dir):
         for file in os.listdir(test_images_dir):
             if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
